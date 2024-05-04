@@ -25,10 +25,6 @@ namespace DailyApp.WPF.Views
         public MainWin()
         {
             InitializeComponent();
-            menuBar.SelectionChanged += (s, e) =>
-            {
-                drawerHost.IsLeftDrawerOpen = false;
-            };
         }
 
         private void BtnMin_Click(object sender, RoutedEventArgs e)
@@ -65,5 +61,9 @@ namespace DailyApp.WPF.Views
             }
         }
 
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            drawerHost.IsLeftDrawerOpen = false;
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace DailyApp.API.DataModel
 
         // 数据迁移时会自动创建表
         public virtual DbSet<AccountInfo> AccountInfo { get; set; }
+        public virtual DbSet<ToDoInfo> ToDoInfo { get; set; }
     }
 }

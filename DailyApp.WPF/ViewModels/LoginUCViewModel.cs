@@ -1,6 +1,7 @@
 ﻿using DailyApp.WPF.DTOs;
 using DailyApp.WPF.HttpClients;
 using DailyApp.WPF.MsgEvents;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -121,7 +122,15 @@ namespace DailyApp.WPF.ViewModels
             ApiResponse response = _HttpRestClient.Execute(apiRequest); // 请求API
             if (response.ResultCode == 1)
             {
-                RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
+                if (RequestClose != null)
+                {
+                    // 反序列化
+                    AccountInfoDTO accountInfoDTO = JsonConvert.DeserializeObject<AccountInfoDTO>(response.ResultData.ToString());
+                    
+                    DialogParameters patas = new DialogParameters();
+                    patas.Add("LoginName", accountInfoDTO.Name);
+                    RequestClose(new DialogResult(ButtonResult.OK,patas));
+                }
             }
             else
             {

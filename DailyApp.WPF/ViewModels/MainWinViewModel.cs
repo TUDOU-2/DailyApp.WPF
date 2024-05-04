@@ -66,5 +66,15 @@ namespace DailyApp.WPF.ViewModels
             LeftMenulnfo.Add(new LeftMenulnfo() { Icon = "NotebookPlus", MenuName = "备忘录", ViewName = "MemoUC" });
             LeftMenulnfo.Add(new LeftMenulnfo() { Icon = "Cog", MenuName = "设置", ViewName = "SettingsUC" });
         }
+
+        public void SetDefultNav(string LoginName)
+        {
+            NavigationParameters paras = new NavigationParameters();
+            paras.Add("LoginName", LoginName);
+            _regionManager.Regions[PrismManager.MainViewRegionName].RequestNavigate("HomeUC", back =>
+            {
+                journal = back.Context.NavigationService.Journal;
+            }, paras);
+        }
     }
 }

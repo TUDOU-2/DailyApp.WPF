@@ -1,6 +1,9 @@
 ﻿using DailyApp.WPF.HttpClients;
+using DailyApp.WPF.Service;
 using DailyApp.WPF.ViewModels;
+using DailyApp.WPF.ViewModels.Dialogs;
 using DailyApp.WPF.Views;
+using DailyApp.WPF.Views.Dialogs;
 using DryIoc;
 using Prism.DryIoc;
 using Prism.Ioc;
@@ -25,8 +28,9 @@ namespace DailyApp.WPF
         {
             containerRegistry.RegisterForNavigation<MainWin, MainWinViewModel>();
             containerRegistry.RegisterDialog<LoginUC, LoginUCViewModel>(); // 登录窗口
+            containerRegistry.RegisterForNavigation<AddWaitUC, AddWaitUCViewModel>(); // 添加待办事项窗口
 
-            containerRegistry.GetContainer().Register<HttpRestClient>(made:Parameters.Of.Type<string>(serviceKey:"webUrl")); // 请求地址
+            containerRegistry.GetContainer().Register<HttpRestClient>(made: Parameters.Of.Type<string>(serviceKey: "webUrl")); // 请求地址
 
             // 导航页
             containerRegistry.RegisterForNavigation<HomeUC, HomeUCViewModel>();
@@ -37,25 +41,37 @@ namespace DailyApp.WPF
             containerRegistry.RegisterForNavigation<PersonalUC, PersonalUCViewModel>(); // 个性化
             containerRegistry.RegisterForNavigation<SysSetUC>(); // 系统设置
             containerRegistry.RegisterForNavigation<AboutUsUC>(); // 关于更多
+
+            containerRegistry.Register<DialogHostService>(); // 自定义对话框服务
         }
 
         /// <summary>
         /// 初始化
         /// </summary>
-        //override protected void OnInitialized()
-        //{
-        //    var dialog = Container.Resolve<IDialogService>();
-        //    dialog.ShowDialog("LoginUC", callback =>
-        //    {
-        //        if (callback.Result != ButtonResult.OK)
-        //        {
-        //            Environment.Exit(0);
-        //            return;
-        //        }
+        override protected void OnInitialized()
+        {
+            var dialog = Container.Resolve<IDialogService>();
+            dialog.ShowDialog("LoginUC", callback =>
+            {
+                if (callback.Result != ButtonResult.OK)
+                {
+                    Environment.Exit(0);
+                    return;
+                }
 
-        //        base.OnInitialized();
-        //    });
-        //}
+                var mainVM = Current.MainWindow.DataContext as MainWinViewModel; // 获取主界面上下文
+                if (mainVM != null)
+                {
+                    if (callback.Parameters.ContainsKey("LoginName"))
+                    {
+                        string name = callback.Parameters.GetValue<string>("LoginName");
+                        mainVM.SetDefultNav(name); // 设置默认导航
+                    }
+                }
+
+                base.OnInitialized();
+            });
+        }
     }
 
 }

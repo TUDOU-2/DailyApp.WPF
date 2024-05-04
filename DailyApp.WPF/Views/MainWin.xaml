@@ -20,9 +20,8 @@
         WindowStyle="None" >
         <!--隐藏默认标题栏-->
     
-    <materialDesign:DialogHost DialogTheme="Inherit"
-                       Identifier="RootDialog"
-                       SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+    <materialDesign:DialogHost DialogTheme="Inherit" Identifier="RootDialog"
+                               SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
 
         <materialDesign:DrawerHost x:Name="drawerHost" IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
             <materialDesign:DrawerHost.LeftDrawerContent>
@@ -35,12 +34,11 @@
                         </Image>
                         <TextBlock Text="痕迹gg" Margin="0,10,0,50" HorizontalAlignment="Center" />
                         
-                        <ListBox x:Name="menuBar"
-                                 ItemContainerStyle="{StaticResource MyListBoxItemStyle}"
-                                 ItemsSource="{Binding LeftMenulnfo}" >
+                        <ListBox ItemContainerStyle="{StaticResource MyListBoxItemStyle}"
+                                 ItemsSource="{Binding LeftMenulnfo}" SelectionChanged="ListBox_SelectionChanged">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <i:InvokeCommandAction Command="{Binding NavigeteCmm}" CommandParameter="{Binding ElementName=menuBar,Path=SelectedItem}" />
+                                    <i:InvokeCommandAction Command="{Binding NavigeteCmm}" CommandParameter="{Binding SelectedItem,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <ListBox.ItemTemplate>
@@ -76,9 +74,9 @@
 
                         <StackPanel Orientation="Horizontal">
                             <ToggleButton x:Name="MenuToggleButton"
-                      AutomationProperties.Name="HamburgerToggleButton"
-                      IsChecked="False"
-                      Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
+                                          AutomationProperties.Name="HamburgerToggleButton"
+                                          IsChecked="False"
+                                          Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
 
                             <Button Margin="24,0,0,0"
                                     materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"

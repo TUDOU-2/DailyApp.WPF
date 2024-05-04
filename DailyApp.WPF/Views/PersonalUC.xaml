@@ -31,24 +31,26 @@
             <TextBlock VerticalAlignment="Center" Text="浅色"/>
         </StackPanel>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Swatches}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type materialDesignColors:ISwatch}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Width="100"
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+            <ItemsControl ItemsSource="{Binding Swatches}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type materialDesignColors:ISwatch}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Width="100"
                                    VerticalAlignment="Center"                                   
                                    Text="{Binding Name, Mode=OneTime}" />
-                        <ItemsControl ItemTemplate="{StaticResource SwatchColorTemplate}"
+                            <ItemsControl ItemTemplate="{StaticResource SwatchColorTemplate}" 
                                       ItemsSource="{Binding Lookup.Values, Mode=OneTime}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
