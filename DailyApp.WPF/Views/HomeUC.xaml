@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DailyApp.WPF.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -25,7 +26,11 @@
 
             <ItemsControl.ItemTemplate >
                 <DataTemplate>
-                    <Border Background="{Binding BackColor}" Margin="10" CornerRadius="5">
+                    <Border Background="{Binding BackColor}" Margin="10" CornerRadius="5" Cursor="{Binding Hand}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.NavigateCmm,
+                                RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                        </Border.InputBindings>
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Style.Triggers>
@@ -85,10 +90,16 @@
                 </DockPanel>
 
                 <ListBox ItemsSource="{Binding ToDoList}" ScrollViewer.VerticalScrollBarVisibility="Hidden" HorizontalContentAlignment="Stretch">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDoubleClick">
+                            <i:InvokeCommandAction Command="{Binding ShowEditWaitDialogCmm}" 
+                                                   CommandParameter="{Binding SelectedItem,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel MaxHeight="80" LastChildFill="False">
-                                <ToggleButton DockPanel.Dock="Right" />
+                                <ToggleButton DockPanel.Dock="Right" IsChecked="{Binding Status}" Command="{Binding DataContext.ChangedToDoStatusCmm,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}" CommandParameter="{Binding}"/>
                                 <StackPanel>
                                     <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold"/>
                                     <TextBlock Margin="0.5" Text="{Binding Content}" Opacity="0.5"/>

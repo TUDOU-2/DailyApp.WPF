@@ -29,6 +29,7 @@ namespace DailyApp.WPF
             containerRegistry.RegisterForNavigation<MainWin, MainWinViewModel>();
             containerRegistry.RegisterDialog<LoginUC, LoginUCViewModel>(); // 登录窗口
             containerRegistry.RegisterForNavigation<AddWaitUC, AddWaitUCViewModel>(); // 添加待办事项窗口
+            containerRegistry.RegisterForNavigation<EditWaitUC, EditWaitUCViewModel>(); // 编辑待办事项窗口
 
             containerRegistry.GetContainer().Register<HttpRestClient>(made: Parameters.Of.Type<string>(serviceKey: "webUrl")); // 请求地址
 

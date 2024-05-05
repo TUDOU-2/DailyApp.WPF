@@ -1,4 +1,5 @@
 ﻿using DailyApp.WPF.DTOs;
+using DailyApp.WPF.Extensions;
 using DailyApp.WPF.HttpClients;
 using DailyApp.WPF.Models;
 using DailyApp.WPF.Service;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DailyApp.WPF.ViewModels
 {
@@ -24,9 +26,12 @@ namespace DailyApp.WPF.ViewModels
         private StatWaitDTO StatWaitDTO { get; set; } = new StatWaitDTO(); // 待办事项统计数据模型
         private readonly HttpRestClient _HttpClient; // 请求api的客户端
         private readonly DialogHostService dialogHostService; // 对话框服务
+        private readonly IRegionManager _regionManager; // 区域管理器
 
         public DelegateCommand ShowAddWaitDialogCmm { get; set; } // 添加待办事项命令
-
+        public DelegateCommand<ToDoInfoDTO> ChangedToDoStatusCmm { get; set; } // 改变待办事项状态命令
+        public DelegateCommand<ToDoInfoDTO> ShowEditWaitDialogCmm { get; set; } // 显示编辑待办事项对话框命令
+        public DelegateCommand<StatPanelInfo> NavigateCmm { get; set; } // 导航命令
 
         public string LoginInfo
         {
@@ -51,14 +56,40 @@ namespace DailyApp.WPF.ViewModels
             set { _StatPanelList = value; RaisePropertyChanged(); }
         }
 
-        public HomeUCViewModel(HttpRestClient HttpClient, DialogHostService DialogHostService) // 构造函数
+        public HomeUCViewModel(HttpRestClient HttpClient, DialogHostService DialogHostService, IRegionManager regionManager) // 构造函数
         {
             CreateStatPanelList();
+            _HttpClient = HttpClient;
             CreateToDoList();
             CreateMemoList();
-            _HttpClient = HttpClient;
             dialogHostService = DialogHostService;
-            ShowAddWaitDialogCmm = new DelegateCommand(ShowAddWaitDialog);           
+            _regionManager = regionManager;
+            ShowAddWaitDialogCmm = new DelegateCommand(ShowAddWaitDialog);
+            ChangedToDoStatusCmm = new DelegateCommand<ToDoInfoDTO>(ChangedToDoStatus);
+            ShowEditWaitDialogCmm = new DelegateCommand<ToDoInfoDTO>(ShowEditWaitDialog);
+            NavigateCmm = new DelegateCommand<StatPanelInfo>(Navigate);
+        }
+
+        /// <summary>
+        /// 统计面板导航
+        /// </summary>
+        /// <param name="info"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void Navigate(StatPanelInfo info)
+        {
+            if (!string.IsNullOrEmpty(info.ViewName))
+            {
+                if (info.ItemName == "已完成")
+                {
+                    NavigationParameters paras = new NavigationParameters();
+                    paras.Add("SelectedIndex", 2);
+                    _regionManager.Regions[PrismManager.MainViewRegionName].RequestNavigate(info.ViewName, paras);
+                }
+                else
+                {
+                    _regionManager.Regions[PrismManager.MainViewRegionName].RequestNavigate(info.ViewName);
+                }
+            }
         }
 
         private void CreateStatPanelList()
@@ -70,12 +101,24 @@ namespace DailyApp.WPF.ViewModels
             StatPanelList.Add(new StatPanelInfo() { Icon = "PlaylistStar", ItemName = "备忘录", Result = "19", BackColor = "#FFFFA000", ViewName = "MemoUC" });
         }
 
+        /// <summary>
+        /// 获取待办状态的待办事项
+        /// </summary>
         private void CreateToDoList()
         {
-            _ToDoList = new List<ToDoInfoDTO>();
-            for (int i = 0; i < 10; i++)
+            ApiRequest apiRequest = new ApiRequest();
+            apiRequest.Method = RestSharp.Method.GET;
+            apiRequest.Route = "ToDo/GetToDoList";
+
+            ApiResponse response = _HttpClient.Execute(apiRequest);
+            if (response.ResultCode == 1)
             {
-                _ToDoList.Add(new ToDoInfoDTO() { Title = "待办" + i, Content = "正在处理中...." });
+                ToDoList = JsonConvert.DeserializeObject<List<ToDoInfoDTO>>(response.ResultData.ToString());
+                RefreshWaitStat();
+            }
+            else
+            {
+                ToDoList = new List<ToDoInfoDTO>();
             }
         }
 
@@ -143,14 +186,80 @@ namespace DailyApp.WPF.ViewModels
         /// </summary>
         private async void ShowAddWaitDialog()
         {
-           var result = await dialogHostService.ShowDialog("AddWaitUC", null);
+            var result = await dialogHostService.ShowDialog("AddWaitUC", null);
             if (result.Result == ButtonResult.OK)
             {
                 if (result.Parameters.ContainsKey("AddToDoInfo"))
                 {
                     var addModel = result.Parameters.GetValue<ToDoInfoDTO>("AddToDoInfo"); // 接收数据
-
+                    ApiRequest apiRequest = new ApiRequest();
+                    apiRequest.Method = RestSharp.Method.POST;
+                    apiRequest.Parameters = addModel;
+                    apiRequest.Route = "ToDo/AddWait";
+                    ApiResponse response = _HttpClient.Execute(apiRequest);
+                    if (response.ResultCode == 1)
+                    {
+                        CallStatWait();
+                        CreateToDoList();
+                    }
+                    else
+                    {
+                        MessageBox.Show(response.Msg);
+                    }
                 }
+            }
+        }
+
+        /// <summary>
+        /// 编辑待办事项对话框
+        /// </summary>
+        private async void ShowEditWaitDialog(ToDoInfoDTO toDoInfoDTO)
+        {
+            DialogParameters paras = new DialogParameters();
+            paras.Add("OldToDoInfo", toDoInfoDTO);
+            var result = await dialogHostService.ShowDialog("EditWaitUC", paras);
+            if (result.Result == ButtonResult.OK)
+            {
+                if (result.Parameters.ContainsKey("NewToDoInfo"))
+                {
+                    var newModel = result.Parameters.GetValue<ToDoInfoDTO>("NewToDoInfo"); // 接收数据
+                    ApiRequest apiRequest = new ApiRequest();
+                    apiRequest.Method = RestSharp.Method.PUT;
+                    apiRequest.Parameters = newModel;
+                    apiRequest.Route = "ToDo/EditToDo";
+                    ApiResponse response = _HttpClient.Execute(apiRequest);
+                    if (response.ResultCode == 1)
+                    {
+                        CallStatWait();
+                        CreateToDoList();
+                    }
+                    else
+                    {
+                        MessageBox.Show(response.Msg);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 修改待办事项状态
+        /// </summary>
+        /// <param name="dTO"></param>
+        private void ChangedToDoStatus(ToDoInfoDTO dTO)
+        {
+            ApiRequest apiRequest = new ApiRequest();
+            apiRequest.Method = RestSharp.Method.PUT;
+            apiRequest.Parameters = dTO;
+            apiRequest.Route = "ToDo/UpdateStatus";
+            ApiResponse response = _HttpClient.Execute(apiRequest);
+            if (response.ResultCode == 1)
+            {
+                CallStatWait();
+                CreateToDoList();
+            }
+            else
+            {
+                MessageBox.Show(response.Msg);
             }
         }
     }

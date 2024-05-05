@@ -12,6 +12,7 @@ namespace DailyApp.WPF.DTOs
         private string title;
         private string content;
         private int status;
+
         public int WaitID
         {
             get { return waitID; }
@@ -34,6 +35,15 @@ namespace DailyApp.WPF.DTOs
         {
             get { return status; }
             set { status = value; }
+        }
+
+        // 界面显示颜色
+        public string BackColor
+        {
+            get
+            {
+                return Status ==0? "#1E90FF" : "#3CB371";
+            }
         }
     }
 }

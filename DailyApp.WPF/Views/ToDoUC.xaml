@@ -35,10 +35,17 @@
 
                 <StackPanel Margin="15,0,0,0" Orientation="Horizontal">
                     <TextBox Width="250" md:HintAssist.Hint="查找待办事项..."
-                             VerticalAlignment="Center"
-                             md:TextFieldAssist.HasClearButton="True"/>
+                             VerticalAlignment="Center" Text="{Binding SearchToDoTitle,UpdateSourceTrigger=PropertyChanged}"
+                             md:TextFieldAssist.HasClearButton="True">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding QueryToDoListCmm}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
                     <TextBlock Text="筛选:" Margin="10,0" VerticalAlignment="Center"/>
-                    <ComboBox SelectedIndex="0">
+                    <ComboBox SelectedIndex="{Binding SearchToDoIndex}">
+                        <ComboBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding QueryToDoListCmm}"/>
+                        </ComboBox.InputBindings>
                         <ComboBoxItem>全部</ComboBoxItem>
                         <ComboBoxItem>待办</ComboBoxItem>
                         <ComboBoxItem>已完成</ComboBoxItem>
@@ -68,7 +75,7 @@
                                             <Button Content="删除" Height="30" VerticalContentAlignment="Center"/>
                                         </md:PopupBox>
 
-                                        <Border Background="Green" CornerRadius="3" Grid.RowSpan="2"/>
+                                        <Border Background="{Binding BackColor}"  CornerRadius="3" Grid.RowSpan="2"/>
 
                                         <TextBlock FontWeight="Bold" Padding="10,5" Text="{Binding Title}"/>
                                         <TextBlock VerticalAlignment="Top" Text="{Binding Content}" Padding="10,5" Grid.Row="1"/>

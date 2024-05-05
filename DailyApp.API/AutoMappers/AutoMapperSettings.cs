@@ -6,9 +6,13 @@ namespace DailyApp.API.AutoMappers
 {
     public class AutoMapperSettings : Profile
     {
+        /// <summary>
+        /// model和DTO映射
+        /// </summary>
         public AutoMapperSettings()
         {
             CreateMap<AccountInfoDTO, AccountInfo>().ReverseMap();
+            CreateMap<ToDoDTO, ToDoInfo>().ReverseMap();
         }
     }
 }
