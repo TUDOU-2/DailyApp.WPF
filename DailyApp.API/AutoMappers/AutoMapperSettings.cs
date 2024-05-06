@@ -13,6 +13,7 @@ namespace DailyApp.API.AutoMappers
         {
             CreateMap<AccountInfoDTO, AccountInfo>().ReverseMap();
             CreateMap<ToDoDTO, ToDoInfo>().ReverseMap();
+            CreateMap<MemoDTO, MemoInfo>().ReverseMap();
         }
     }
 }

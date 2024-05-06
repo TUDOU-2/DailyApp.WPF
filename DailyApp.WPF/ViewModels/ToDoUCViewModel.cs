@@ -19,8 +19,8 @@ namespace DailyApp.WPF.ViewModels
         private bool _IsRightDrawerOpen; // 右侧抽屉是否打开
         private readonly HttpRestClient httpClient; // 请求api的客户端
 
-        public string SearchToDoTitle { get; set; } // 查询条件
-        private int _SearchToDoIndex; // 查询条件
+        public string SearchToDoTitle { get; set; } // 查询条件(标题)
+        private int _SearchToDoIndex; // 查询条件(状态)
 
         public DelegateCommand AddCommand { get; private set; } // 显示添加待办事项命令
         public DelegateCommand QueryToDoListCmm { get; private set; } // 查询待办事项命令
@@ -50,7 +50,7 @@ namespace DailyApp.WPF.ViewModels
         }
 
         /// <summary>
-        /// 查询待办事项
+        /// 查询待办事项数据
         /// </summary>
         private void QueryToDoList()
         {

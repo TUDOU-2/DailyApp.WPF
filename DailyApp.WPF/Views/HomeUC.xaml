@@ -93,7 +93,8 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDoubleClick">
                             <i:InvokeCommandAction Command="{Binding ShowEditWaitDialogCmm}" 
-                                                   CommandParameter="{Binding SelectedItem,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"/>
+                                                   CommandParameter="{Binding SelectedItem,
+                                RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <ListBox.ItemTemplate>
@@ -114,12 +115,19 @@
             <DockPanel Margin="10,0" Grid.Column="1">
                 <DockPanel Margin="10,5" LastChildFill="False" DockPanel.Dock="Top">
                     <TextBlock Text="备忘录" FontSize="20" FontWeight="Bold"/>
-                    <Button Width="30" Height="30" VerticalAlignment="Top" DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFloatingActionButton}">
+                    <Button Width="30" Height="30" VerticalAlignment="Top" DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFloatingActionButton}" Command="{Binding ShowAddMemoDialogCmm}">
                         <materialDesign:PackIcon Kind="Add"/>
                     </Button>
                 </DockPanel>
 
                 <ListBox ItemsSource="{Binding MemoList}" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDoubleClick">
+                            <i:InvokeCommandAction Command="{Binding ShowEditMemoDialogCmm}" 
+                                                   CommandParameter="{Binding SelectedItem,
+                                RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel MaxHeight="80">

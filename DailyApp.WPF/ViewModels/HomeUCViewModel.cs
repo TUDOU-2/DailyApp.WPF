@@ -29,8 +29,10 @@ namespace DailyApp.WPF.ViewModels
         private readonly IRegionManager _regionManager; // 区域管理器
 
         public DelegateCommand ShowAddWaitDialogCmm { get; set; } // 添加待办事项命令
+        public DelegateCommand ShowAddMemoDialogCmm { get; set; } // 添加备忘录命令
         public DelegateCommand<ToDoInfoDTO> ChangedToDoStatusCmm { get; set; } // 改变待办事项状态命令
         public DelegateCommand<ToDoInfoDTO> ShowEditWaitDialogCmm { get; set; } // 显示编辑待办事项对话框命令
+        public DelegateCommand<MemoInfoDTO> ShowEditMemoDialogCmm { get; set; } // 显示编辑备忘录对话框命令
         public DelegateCommand<StatPanelInfo> NavigateCmm { get; set; } // 导航命令
 
         public string LoginInfo
@@ -62,11 +64,14 @@ namespace DailyApp.WPF.ViewModels
             _HttpClient = HttpClient;
             CreateToDoList();
             CreateMemoList();
+            CallStatMemo();
             dialogHostService = DialogHostService;
             _regionManager = regionManager;
             ShowAddWaitDialogCmm = new DelegateCommand(ShowAddWaitDialog);
+            ShowAddMemoDialogCmm = new DelegateCommand(ShowAddMemoDialog);
             ChangedToDoStatusCmm = new DelegateCommand<ToDoInfoDTO>(ChangedToDoStatus);
             ShowEditWaitDialogCmm = new DelegateCommand<ToDoInfoDTO>(ShowEditWaitDialog);
+            ShowEditMemoDialogCmm = new DelegateCommand<MemoInfoDTO>(ShowEditMemoDialog);
             NavigateCmm = new DelegateCommand<StatPanelInfo>(Navigate);
         }
 
@@ -114,7 +119,6 @@ namespace DailyApp.WPF.ViewModels
             if (response.ResultCode == 1)
             {
                 ToDoList = JsonConvert.DeserializeObject<List<ToDoInfoDTO>>(response.ResultData.ToString());
-                RefreshWaitStat();
             }
             else
             {
@@ -122,16 +126,30 @@ namespace DailyApp.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// 获取备忘录列表
+        /// </summary>
         private void CreateMemoList()
         {
-            _MemoList = new List<MemoInfoDTO>();
-            for (int i = 0; i < 10; i++)
+            ApiRequest apiRequest = new ApiRequest();
+            apiRequest.Method = RestSharp.Method.GET;
+            apiRequest.Route = "Memo/QueryMemo";
+
+            ApiResponse response = _HttpClient.Execute(apiRequest);
+            if (response.ResultCode == 1)
             {
-                _MemoList.Add(new MemoInfoDTO() { Title = "备忘" + i, Content = "我的密码" });
+                MemoList = JsonConvert.DeserializeObject<List<MemoInfoDTO>>(response.ResultData.ToString());
+            }
+            else
+            {
+                MemoList = new List<MemoInfoDTO>();
             }
         }
 
-
+        /// <summary>
+        /// 导航到此页面时触发
+        /// </summary>
+        /// <param name="navigationContext">导航过程中的信息</param>
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
             if (navigationContext.Parameters.ContainsKey("LoginName"))
@@ -155,7 +173,7 @@ namespace DailyApp.WPF.ViewModels
         }
 
         /// <summary>
-        /// 调用api获取待办事项统计数据
+        /// 获取待办事项统计数据
         /// </summary>
         private void CallStatWait()
         {
@@ -260,6 +278,83 @@ namespace DailyApp.WPF.ViewModels
             else
             {
                 MessageBox.Show(response.Msg);
+            }
+        }
+
+        /// <summary>
+        /// 获取备忘录统计数据
+        /// </summary>
+        private void CallStatMemo()
+        {
+            ApiRequest apiRequest = new ApiRequest();
+            apiRequest.Method = RestSharp.Method.GET;
+            apiRequest.Route = "Memo/SataMemo";
+
+            ApiResponse response = _HttpClient.Execute(apiRequest);
+            if (response.ResultCode == 1)
+            {
+                StatPanelList[3].Result = response.ResultData.ToString();
+            }
+        }
+
+        /// <summary>
+        /// 显示添加备忘录对话框
+        /// </summary>
+        private async void ShowAddMemoDialog()
+        {
+            var result = await dialogHostService.ShowDialog("AddMemoUC", null);
+            if (result.Result == ButtonResult.OK)
+            {
+                if (result.Parameters.ContainsKey("AddMemoInfo"))
+                {
+                    var addModel = result.Parameters.GetValue<MemoInfoDTO>("AddMemoInfo"); // 接收数据
+                    ApiRequest apiRequest = new ApiRequest();
+                    apiRequest.Method = RestSharp.Method.POST;
+                    apiRequest.Parameters = addModel;
+                    apiRequest.Route = "Memo/AddMemo";
+                    ApiResponse response = _HttpClient.Execute(apiRequest);
+                    if (response.ResultCode == 1)
+                    {
+                        CallStatMemo();
+                        CreateMemoList();
+                    }
+                    else
+                    {
+                        MessageBox.Show(response.Msg);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 显示编辑备忘录对话框
+        /// </summary>
+        /// <param name="memoInfoDTO"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private async void ShowEditMemoDialog(MemoInfoDTO memoInfoDTO)
+        {
+            DialogParameters paras = new DialogParameters();
+            paras.Add("OldMemoInfo", memoInfoDTO);
+            var result = await dialogHostService.ShowDialog("EditMemoUC", paras);
+            if (result.Result == ButtonResult.OK)
+            {
+                if (result.Parameters.ContainsKey("NewMemoInfo"))
+                {
+                    var newModel = result.Parameters.GetValue<MemoInfoDTO>("NewMemoInfo"); // 接收数据
+                    ApiRequest apiRequest = new ApiRequest();
+                    apiRequest.Method = RestSharp.Method.PUT;
+                    apiRequest.Parameters = newModel;
+                    apiRequest.Route = "Memo/EditMemo";
+                    ApiResponse response = _HttpClient.Execute(apiRequest);
+                    if (response.ResultCode == 1)
+                    {
+                        CreateMemoList();
+                    }
+                    else
+                    {
+                        MessageBox.Show(response.Msg);
+                    }
+                }
             }
         }
     }

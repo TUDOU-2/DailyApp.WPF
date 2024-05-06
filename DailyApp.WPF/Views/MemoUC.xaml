@@ -27,9 +27,12 @@
 
                 <StackPanel Margin="15,0,0,0" Orientation="Horizontal">
                     <TextBox Width="250" md:HintAssist.Hint="查找备忘录..."
-                             VerticalAlignment="Center"
-                             md:TextFieldAssist.HasClearButton="True"/>
-
+                             VerticalAlignment="Center" Text="{Binding SearchMemoTitle,UpdateSourceTrigger=PropertyChanged}"
+                             md:TextFieldAssist.HasClearButton="True">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding QueryMemoListCmm}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </StackPanel>
 
                 <Button HorizontalAlignment="Right" Content="+ 添加备忘录" Margin="10,5" Command="{Binding AddCommand}"/>

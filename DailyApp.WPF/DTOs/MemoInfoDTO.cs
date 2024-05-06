@@ -8,14 +8,13 @@ namespace DailyApp.WPF.DTOs
 {
     class MemoInfoDTO
     {
-        private int waitID;
+        private int memoID;
         private string title;
         private string content;
-        private int status;
-        public int WaitID
+        public int MemoID
         {
-            get { return waitID; }
-            set { waitID = value; }
+            get { return memoID; }
+            set { memoID = value; }
         }
 
         public string Title //标题
@@ -28,12 +27,6 @@ namespace DailyApp.WPF.DTOs
         {
             get { return content; }
             set { content = value; }
-        }
-
-        public int Status // 状态
-        {
-            get { return status; }
-            set { status = value; }
         }
     }
 }

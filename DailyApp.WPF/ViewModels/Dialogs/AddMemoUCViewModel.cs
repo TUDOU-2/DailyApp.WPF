@@ -13,17 +13,14 @@ using System.Threading.Tasks;
 
 namespace DailyApp.WPF.ViewModels.Dialogs
 {
-    /// <summary>
-    /// 编辑待办事项界面视图模型
-    /// </summary>
-    internal class EditWaitUCViewModel : IDialogHostAware
+    internal class AddMemoUCViewModel : IDialogHostAware
     {
         private const string DailogHostName = "RootDialog"; // 主机对话框唯一标识
         public DelegateCommand SaveCommand { get; set; } // 确定命令
         public DelegateCommand CancelCommand { get; set; } // 取消命令
-        public ToDoInfoDTO ToDoInfoDTO { get; set; } = new ToDoInfoDTO(); // 待办事项信息
+        public MemoInfoDTO MemoInfoDTO { get; set; } = new MemoInfoDTO(); // 备忘录信息
         private readonly IEventAggregator _aggregator;
-        public EditWaitUCViewModel(IEventAggregator aggregator) // 构造函数
+        public AddMemoUCViewModel(IEventAggregator aggregator) // 构造函数
         {
             SaveCommand = new DelegateCommand(Save);
             CancelCommand = new DelegateCommand(Cancel);
@@ -32,20 +29,20 @@ namespace DailyApp.WPF.ViewModels.Dialogs
 
         public void OnDialogOpening(IDialogParameters parameters)
         {
-            ToDoInfoDTO = parameters.GetValue<ToDoInfoDTO>("OldToDoInfo");
+
         }
 
         private void Save()
         {
-            if (string.IsNullOrEmpty(ToDoInfoDTO.Title) || string.IsNullOrEmpty(ToDoInfoDTO.Content))
+            if (string.IsNullOrEmpty(MemoInfoDTO.Title) || string.IsNullOrEmpty(MemoInfoDTO.Content))
             {
-                _aggregator.GetEvent<MsgEvent>().Publish("待办事项信息不全");
+                _aggregator.GetEvent<MsgEvent>().Publish("备忘录信息不全");
                 return;
             }
             if (DialogHost.IsDialogOpen(DailogHostName))
             {
                 DialogParameters paras = new DialogParameters();
-                paras.Add("NewToDoInfo", ToDoInfoDTO);
+                paras.Add("AddMemoInfo", MemoInfoDTO);
                 DialogHost.Close(DailogHostName, new DialogResult(ButtonResult.OK, paras));
             }
         }
