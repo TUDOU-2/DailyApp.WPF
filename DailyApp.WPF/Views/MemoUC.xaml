@@ -13,9 +13,9 @@
                 <DockPanel Width="300" LastChildFill="False">
                     <TextBlock Text="添加备忘录" FontSize="20" FontWeight="Bold" DockPanel.Dock="Top" Margin="20,10"/>
 
-                    <TextBox md:HintAssist.Hint="请输入备忘录概要" DockPanel.Dock="Top" Margin="20,0"/>
-                    <TextBox md:HintAssist.Hint="请输入备忘录内容" DockPanel.Dock="Top" MinHeight="100" Margin="20"/>
-                    <Button Content="添加到备忘录" DockPanel.Dock="Top" Margin="20,0"/>
+                    <TextBox md:HintAssist.Hint="请输入备忘录概要" DockPanel.Dock="Top" Margin="20,0" Text="{Binding memoInfoDTO.Title}"/>
+                    <TextBox md:HintAssist.Hint="请输入备忘录内容" DockPanel.Dock="Top" MinHeight="100" Margin="20" Text="{Binding memoInfoDTO.Content}"/>
+                    <Button Content="添加到备忘录" DockPanel.Dock="Top" Margin="20,0" Command="{Binding AddMemoCmm}"/>
                 </DockPanel>
             </md:DrawerHost.RightDrawerContent>
 
@@ -37,6 +37,11 @@
 
                 <Button HorizontalAlignment="Right" Content="+ 添加备忘录" Margin="10,5" Command="{Binding AddCommand}"/>
 
+                <StackPanel Grid.Row="1" VerticalAlignment="Center" Visibility="{Binding visibility}">
+                    <Image Source="/Images/wind.png" Width="120" Height="120"/>
+                    <TextBlock Margin="0,10" Text="没有找到备忘录，您可以添加一些备忘录。" FontSize="18" HorizontalAlignment="Center"/>
+                </StackPanel>
+
                 <ScrollViewer Grid.Row="1">
                     <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding MemoList}">
                         <ItemsControl.ItemsPanel>
@@ -56,7 +61,8 @@
                                         </Grid.RowDefinitions>
 
                                         <md:PopupBox HorizontalAlignment="Right" Panel.ZIndex="1">
-                                            <Button Content="删除" Height="30" VerticalContentAlignment="Center"/>
+                                            <Button Content="删除" Height="30" VerticalContentAlignment="Center" Command="{Binding DataContext.DelCmm,
+                                                RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                                         </md:PopupBox>
 
                                         <Border Background="#1E90FF" CornerRadius="3" Grid.RowSpan="2"/>

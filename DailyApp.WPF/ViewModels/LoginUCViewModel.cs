@@ -105,7 +105,7 @@ namespace DailyApp.WPF.ViewModels
                 _aggregator.GetEvent<MsgEvent>().Publish(response.Msg);
             }
         }
-        private void Login() // 登录
+        private async void Login() // 登录
         {
             // 数据验证
             if (string.IsNullOrEmpty(Account) || string.IsNullOrEmpty(Pwd))
@@ -119,7 +119,7 @@ namespace DailyApp.WPF.ViewModels
             apiRequest.Method = RestSharp.Method.GET;
             Pwd = Md5Hepler.GetMd5(Pwd);// 密码加密
             apiRequest.Route = $"Account/Login?account={Account}&pwd={Pwd}"; // 路由+传参
-            ApiResponse response = _HttpRestClient.Execute(apiRequest); // 请求API
+            ApiResponse response = await _HttpRestClient.ExecuteAsync(apiRequest); // 请求API
             if (response.ResultCode == 1)
             {
                 if (RequestClose != null)

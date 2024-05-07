@@ -15,11 +15,13 @@ namespace DailyApp.WPF.HttpClients
     public class HttpRestClient
     {
         private readonly RestClient Client;
-        private readonly string baseUrl = "http://localhost:5062/api/";
+        private readonly string baseUrl = "http://localhost:81/api/";
+
         public HttpRestClient()
         {
             Client = new RestClient();
         }
+
         /// <summary>
         /// 请求
         /// </summary>
@@ -47,5 +49,34 @@ namespace DailyApp.WPF.HttpClients
                 return new ApiResponse() { ResultCode = -99, Msg = "服务器忙,请稍等..." };
             }
         }
+
+        /// <summary>
+        /// 异步请求
+        /// </summary>
+        /// <param name="apiRequest"></param>
+        /// <returns></returns>
+        public async Task<ApiResponse> ExecuteAsync(ApiRequest apiRequest)
+        {
+            RestRequest request = new RestRequest(apiRequest.Method); // 请求方式
+            request.AddHeader("Content-Type", apiRequest.ContentType); // 内容类型
+            if (apiRequest.Parameters != null) // 参数
+            {
+                // 序列化参数
+                request.AddParameter("param", JsonConvert.SerializeObject(apiRequest.Parameters), ParameterType.RequestBody);
+            }
+
+            Client.BaseUrl = new Uri(baseUrl + apiRequest.Route);
+            var response = await Client.ExecuteAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                // 反序列化返回的数据
+                return JsonConvert.DeserializeObject<ApiResponse>(response.Content);
+            }
+            else
+            {
+                return new ApiResponse() { ResultCode = -99, Msg = "服务器忙,请稍等..." };
+            }
+        }
+
     }
 }

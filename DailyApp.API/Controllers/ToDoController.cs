@@ -244,5 +244,45 @@ namespace DailyApp.API.Controllers
             }
             return Ok(res);
         }
+
+        /// <summary>
+        /// 删除待办事项
+        /// </summary>
+        /// <param name="toDoID">待办事项ID</param>
+        /// <returns>1:删除成功 -2:ID异常 -99:异常</returns>
+        [HttpDelete]
+        public IActionResult DelToDo(int toDoID)
+        {
+            ApiResponse response = new ApiResponse();
+            try
+            {
+                var dbInfo = _db.ToDoInfo.Find(toDoID);
+                if (dbInfo == null)
+                {
+                    response.ResultCode = -2;
+                    response.Msg = "待办事项不存在";
+                    return Ok(response);
+                }
+
+                _db.ToDoInfo.Remove(dbInfo);
+                int result = _db.SaveChanges();
+                if (result == 1)
+                {
+                    response.ResultCode = 1;
+                    response.Msg = "删除成功";
+                }
+                else
+                {
+                    response.ResultCode = -1;
+                    response.Msg = "删除失败";
+                }
+            }
+            catch
+            {
+                response.ResultCode = -99;
+                response.Msg = "服务器忙,请稍等...";
+            }
+            return Ok(response);
+        }
     }
 }
